@@ -1,0 +1,34 @@
+<head>
+<title>Katech 103mm throttle body in a C5</title>
+</head>
+
+<body>
+It takes a bit of extra effort to work make this throttle body work right in a C5. 
+
+<p>The only hard part was figure out which tables needed help (probably because this is the first time I've tuned a car with an aftermarket throttle body). But, once I understood the problem, the fix is just ordinary tuning stuff. So, let me save you some trouble...
+
+<p><b>The Problem</b>
+
+<p>Imagine that you're holding the throttle body in your hands and closing the throttle blade from halfway open to fully closed. After the opening is completely sealed by the throttle blade, the stock throttle body's blade can rotate another 4% before it hits the stop. With the Katech, the blade can rotate another 13% (maybe more - I'm not completely certain that 13% is the magic number). 
+
+<p>With the stock TB, when the PCM says "give me 1% throttle <b>opening area</b>" the blade moves across 10% of its <b>travel</b>. But with the Katech, the blade needs to move to about 18% travel to get that same 1% throttle opening area. 
+
+<p>Another way to look at it: The stock throttle body begins to allow some airflow after the blade moves about 4% away from the stop. But with the Katech, There will be ZERO airflow passing through the throttle body until the blade has moved about 13%. 
+
+<p><b>The Solution</b> (Almost...)
+
+<p>The PCM has tables that define the relationship between throttle opening area (how much air can flow through the throttle) and throttle blade position.
+
+<p>In TunerPro, the tables are called "throttle position vs throttle area" and "throttle rotation vs throttle area." 
+
+<p>And yes, those names are confusingly similar but I'm pretty sure that's GM's fault.
+
+<p>The throttle <i>rotation</i> table defines the relationship at very high resolution, and at very low throttle angles, and it is critical for idle. There are two copies of this table and they must match exactly. Otherwise the PCM software will think there's something wrong with the PCM hardware, and your PCM may brick itself.
+
+<p>The throttle <i>position</i> table is much lower resolution, and the first nonzero cell row is for 3.125% area. I'm not sure what this table is used for.
+
+<p><a href="12587603.bin">I have shared my .bin file</a> for anyone who wants a head start. It's not perfect, but it will save you some time. My car idles just fine but it stumbles on transition to idle, and I'm still not sure whether that's due to throttle body tables or the usual scaler/airflow/cracker/follower/etc stuff. I still need to try 14% and 15% for the zero-opening-angle to see if those work better. 
+
+<p><i>Note that this tune was only intended to drive my car to the shop that will be tuning it. Also, my setup is probably very different from yours (displacement, knock sensors, injectors, etc), so you probably don't want to use any other tables from this tune.</i>
+
+</body>
