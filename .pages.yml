@@ -1,0 +1,17 @@
+media:
+  input: src/media
+  output: /site/media
+
+content:
+  - name: posts
+    label: Posts
+    path: src/posts
+    type: collection
+    view:
+      fields: [ title ]
+      primary: title
+      sort: [ date, title ]
+      default:
+        search: ''
+        sort: date
+        order: desc
