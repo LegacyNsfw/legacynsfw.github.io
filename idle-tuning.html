@@ -1,28 +1,32 @@
 <title>Idle Tuning For General Motors P01 and P59 PCMs</title>
 <body>
   <p>I had some struggles with my 2002 Corvette, and so do lots of people who use these PCMs, and I figured I should document my solution in case it helps other people. 
-    All of the numbers below are what I have in my tune as a I write this. They won't be perfect for your car's setup. They're not even perfect for my car's setup - they're working well enough, but I'm still experimenting.</p>
+    All of the numbers below are what I have in my tune as a I write this. They won't be perfect for your car's setup. 
+    They're not even perfect for my car's setup - they're working well enough, but I'm still experimenting.
+    But if you're struggling to get your car to drive well, consider trying this approach, and using these numbers as a starting point.
+  </p>
   
   <p>The stock tune works so well you'd think this was very simple, but the stock tune starts to suck when you change things. Especially these things:</p>
 
   <ul>
-    <li>Replace the clutch with a lighter one - because they accelerate and decelerate more quickly than the stock tune expects.</li>
-    <li>Replace the cam with one that has more overlap - because the idle rough, and will intermittently suck exhaust into the intake manifold.</li>
-    <li>Replace the throttle body - because the relationship between blade angle and opening area is critical, and it's different for every throttle body.</li>
+    <li>Replacing the clutch with a lighter one - because they accelerate and decelerate more quickly than the stock tune expects.</li>
+    <li>Replacing the cam with one that has more overlap - because the idle rough, and will intermittently suck exhaust into the intake manifold.</li>
+    <li>Replacing the throttle body - because the relationship between blade angle and opening area is critical, and it's different for every throttle body.</li>
     <li>I've heard that aftermarket intake manifolds also complicate things, but I'm not sure why.</li>
   </ul>
 
   <p>My car has all of the above. </p>
   
-  <p>Getting the engine to <i>idle</i> was pretty easy. Getting it to <i>return to idle</i>, for example after approaching a stoplight and pressing the clutch pedal, was hard.</p>
+  <p>Getting the engine to <i>idle</i> was pretty easy. Getting it to <i>return to idle</i>, for example after approaching a stoplight and pressing the clutch pedal, was hard. 
+    Often, the engine speed would just drop from cruising RPM all the way down to zero. With the setup below, that problem is gone.</p>
 
   <p>There are a lot of differnet features in the PCM software that interact to shape this behavior.</p>
 
-  <table>
+  <table border=1>
     <tr>
-      <td>Feature</td>
-      <td>What It Does</td>
-      <td>How I Tuned It</td>
+      <th>Feature</th>
+      <th>What It Does</th>
+      <th>How I Tuned It</th>
     </tr>
     
     <tr>
@@ -68,9 +72,52 @@
       <td>This limits how much airflow the adaptive-idle system can add to (or remove from) the base target airflow for idle.</td>
       <td>Stock is +/- 3 grams per second. I bumped the maximum to +10 grams per second, and left the minimum at -3.</td>
     </tr>
-    
+
+    <tr>
+      <td>Deceleration Fuel Cut-Off (DFCO)</td>
+      <td>This feature disables the fuel injectors when you're engine-braking - in-gear with 0% accelerator pedal.</td>
+      <td>While this is not directly related to idle, it can interfere by keeping the injectors disabled too long. 
+        There's a "negative delta RPM" feature that fixed that problem. In the stock tune it was -6400 RPM, which effectively prevented this feature from ever disabling DFCO.
+        I changed it to -75 (which is also the default setting for automatic transmissions) and that causes the fuel injectors to return to active duty as soon as I push the clutch down.
+      </td>
+    </tr>
+
+    <tr>
+      <td>Idle Spark Feedback</td>
+      <td>This adjusts ignition timing based on the difference between the target RPM and the current RPM. 
+        When the engine speed is too low, it advances the spark, and when the engine speed is too high, it retards the spark.
+        If this is tuned well (andn if your cam does not have absurd amounts of overlap), the spark corrections alone will keep the idle pretty close to the target RPM, with very little or no throttle blade adjustments.
+      </td>
+      <td>Idle overspeed is -1 at +12.5 RPM, increasing to -8 at +100 RPM.
+      <br>Idle underspeed is +0.6 at -12.5 RPM, increasing to +20 at -300 RPM.
+      </td>
+    </tr>
+
+    <tr>
+      <td>Adaptive Idle Airflow - Proportional</td>
+      <td>This also adjusts the throttle blade based on the difference between the target RPM and current RPM.</td>
+      <td>Zero correction for +/- 60 RPM.
+      <br>From +80 RPM to +400 RPM, the correction gradually increases to +0.25
+      <br>At -80 RPM, the table adds 0.5 grams per second.
+      <br>From -100 RPM to -400 RPM, the table adds a flat 10 grams per second. That's a lot. It's roughly equivalent to stabbing the accelerator when you think the engine is about to die. 
+        I intend to try smaller corrections at -100 and -150, because this will overshoot the target intermittently.
+        But, generally speaking, if RPM falls to 100 below target, something is wrong, and this ensures that the engine doesn't sputter and die.
+      </td>
+    </tr>
+
+    <tr>
+      <td>Adaptive Idle Airflow - Integral</td>
+      <thd>This also adjusts the throttle blade based on how much time there has been a difference between the target RPM and current RPM - periodically multipled by the amount of difference.
+      The proportional correction alone can reduce the difference between the target RPM and actual RPM, but it can't eliminate that difference. The integral correction can eliminate the difference.
+      </td>
+      <td>Integral overspeed correction is very mild. Zero at 0, 0.00098 at +20 RPM, ramping up to 0.00488 at +100 RPM, and still 0.00488 from +100 to +400 RPM. 
+        <br>Integral underspeed correction is zero at 0, 0.00098 at -20, ramping up to 0.00391 at -80. Then it jumps to 0.08 at -100, 0.15 at -150, ramping up to 0.44 at -400.
+        The idea behind the steep underspeed correction is that if RPM drops below target, the integral feedback should add enough airflow to ensure that it doesn't drop below target again.
+        It will over-rev slightly, and the mild overspeed correction will then gradually reduce the airflow back to the target.
+      </td>
+    </tr>
+
   </table>
 
-  <p><b>Adaptive Idle</b> More to come...</p>
 
 </body>
