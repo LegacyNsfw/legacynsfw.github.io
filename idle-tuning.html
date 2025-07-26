@@ -22,7 +22,7 @@
 
   <p>There are a lot of differnet features in the PCM software that interact to shape this behavior.</p>
 
-  <table border=1 cellpadding=5>
+  <table border=1 cellpadding=10>
     <tr>
       <th>Feature</th>
       <th>What It Does</th>
@@ -32,7 +32,7 @@
     <tr>
       <td>Adaptive Idle</td>
       <td>This feature adjusts the throttle blade angle (or Idle Air Control valve, for cable-throttle vehicles) based on engine speed. More precisely, based on difference between the actual engine speed and the desired idle speed.</td>
-      <td>This will take a while to explain. See below.</td>
+      <td>I'll come back to this later. I'm just mentioning this here to clarify what it does and why it's useful.</td>
     </tr>
     
     <tr>
@@ -117,7 +117,40 @@
       </td>
     </tr>
 
+    <tr>
+      <td> colspan=3>
+        The idle control routine follows these steps:
+        <ol>
+          <li>Based on the the engine coolant temperature, look up the desired idle airflow in grams per second.</li>
+          <li>Based on that airflow (in g/s), determine how many square millimeters of throttle opening we need.</li>
+          <li>Based on the desired area (in square millimeters), use the ETC scalar to calculate a percentage of throttle body area.</li>
+          <li>Based on the desired percentage, use a table to look up the desired throttle blade position.</li>
+        </ol>
+        There's a bit more to it (idle trims, for example) but that's the basics.
+      </td>
+    </tr>
+    <tr>
+      <td>ETC Scaler (or scalar?)</td>
+      <td>The PCM uses this to calculate the percentage of the total throttle body area that corresponds to a desired throttle opening area (in square millimeters). </td>
+      <td>There are plenty of threads on the internet about which scalar to use for what size throttle body.</td>
+    </tr>
+    
+    <tr>
+      <td>The table that maps from "desired opening area" to throttle blade position.</td>
+      <td>The relationship between opening area and blade position is different for every throttle body. Surprisingly few people adjust this table.</td>
+      <td>The critical thing is the blade position at which air begins to flow through the throttle body.
+        The Katech 103 that I'm using now* doesn't even begin to flow until the blade position has moved to about 10% - whereas the stock throttle body starts flowing air at about 4%.
+      The rest of the table is hard to describe, I'll upload a .bin file shortly.</td>
+    </tr>
+    
   </table>
 
-
+<p>
+  * Katech's 103mm throttle body for the C5 is horribly calibrated. And I have a hunch that's why their website no longer lists them for sale for C5s. 
+  The problem with their calibration is that the TAC model imposes an 18% limit on the throttle position at idle, and since the damn thing doesn't
+  even start flowing air until 10%, 18% is barely enough air for the engine to idle at a cold start. It's tolerable in the summer, just barely, but intolerable in the winter when the oil is thicker.
+  The PCM calls for about 22% throttle position, the TAC says nope, 18% is all you get. And you cannot tune the TAC. We're just stuck with that 18% limit.
+  With the 5.7L / 346ci engines that come in the C5, it'll work. With a dry-sumped 454, on a cold winter day, forget about it. Keep an LS2 TB handy for the winter months.
+  
+</p>
 </body>
