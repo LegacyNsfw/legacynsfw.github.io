@@ -1,0 +1,76 @@
+<title>Idle Tuning For General Motors P01 and P59 PCMs</title>
+<body>
+  <p>I had some struggles with my 2002 Corvette, and so do lots of people who use these PCMs, and I figured I should document my solution in case it helps other people. 
+    All of the numbers below are what I have in my tune as a I write this. They won't be perfect for your car's setup. They're not even perfect for my car's setup - they're working well enough, but I'm still experimenting.</p>
+  
+  <p>The stock tune works so well you'd think this was very simple, but the stock tune starts to suck when you change things. Especially these things:</p>
+
+  <ul>
+    <li>Replace the clutch with a lighter one - because they accelerate and decelerate more quickly than the stock tune expects.</li>
+    <li>Replace the cam with one that has more overlap - because the idle rough, and will intermittently suck exhaust into the intake manifold.</li>
+    <li>Replace the throttle body - because the relationship between blade angle and opening area is critical, and it's different for every throttle body.</li>
+    <li>I've heard that aftermarket intake manifolds also complicate things, but I'm not sure why.</li>
+  </ul>
+
+  <p>My car has all of the above. </p>
+  
+  <p>Getting the engine to <i>idle</i> was pretty easy. Getting it to <i>return to idle</i>, for example after approaching a stoplight and pressing the clutch pedal, was hard.</p>
+
+  <p>There are a lot of differnet features in the PCM software that interact to shape this behavior.</p>
+
+  <table>
+    <tr>
+      <td>Feature</td>
+      <td>What It Does</td>
+      <td>How I Tuned It</td>
+    </tr>
+    
+    <tr>
+      <td>Adaptive Idle</td>
+      <td>This feature adjusts the throttle blade angle (or Idle Air Control valve, for cable-throttle vehicles) based on engine speed. More precisely, based on difference between the actual engine speed and the desired idle speed.</td>
+      <td>This will take a while to explain. See below.</td>
+    </tr>
+    
+    <tr>
+      <td>Throttle Cracker</td>
+      <td>This feature tells the PCM to hold the throttle blade a little bit further open when you lift your foot off the accelerator pedal.
+        The amount of additional airflow depends on vehicle speed and RPM, and the decay rate depends on vehicle speed.</td>
+      <td>Unfortunately, when this is active (even if it is active with zero additional airflow) adaptive idle is disabled.
+        With my car, that means the engine surges +/- 200 RPM, even though the throttle blade angle was fixed.
+        The surging was annoying, so I disabled throttle cracker by raising the "enable" speed to 250mph.
+      </td>      
+    </tr>
+
+    <tr>
+      <td>Throttle Follower</td>
+      <td>This feature also tells the PCM to hold the throttle blade a little bit further open when you lift your foot off the accelerator pedal.
+        Unlike Cracker, the amount of Follower airflow is based on accelerator pedal position (regardless of vehicle speed or engine speed).
+        The decay rate is based on vehicle speed (regardless of engine speed).
+      </td>
+      <td>This is useful to slow down the rate at which RPM falls when you push in the clutch pedal. 
+        Like cracker, this also disables adaptive idle until the additional airflow reaches zero, which is not ideal, but I configure this to taper off to zero after just a second or two, so the drawback is minor.
+        I add 2 g/s of airflow from 13%-100% of pedal angle, ramping down gradaually to 0 airflow at 0% pedal. 
+        The decay rate in gear is zero, because otherwise it would decay to nothing while I was engine-braking, and the whole point is to get this cushioning effect when I put the clutch in.
+        The decay rate with the clutch pressed is 0.015.
+      </td>
+    </tr>
+
+    <tr>
+      <td>Adaptive Idle Early-Entry or Hysteresis/td>
+      <td>If this is set to zero, adaptive idle will only engage when the engine speed drops to the target idle speed. 
+        If this is set to 500, adaptive idle will engage when the engine speed is 500 RPM above the target idle speed. 
+        This is useful, because one of the adaptive idle features slows the rate at which RPM falls. </td>
+      <td>I set this to 1000.</td>
+    </tr>
+
+    <tr>
+      <td>Maximum adaptive idle airflow correction</td>
+      <td>This limits how much airflow the adaptive-idle system can add to (or remove from) the base target airflow for idle.</td>
+      <td>Stock is +/- 3 grams per second. I bumped the maximum to +10 grams per second, and left the minimum at -3.</td>
+    </tr>
+    
+  </table>
+
+  <p><b>Adaptive Idle</b> More to come...</p>
+
+</body>
