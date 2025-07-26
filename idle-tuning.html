@@ -107,7 +107,7 @@
 
     <tr>
       <td>Adaptive Idle Airflow - Integral</td>
-      <thd>This also adjusts the throttle blade based on how much time there has been a difference between the target RPM and current RPM - periodically multipled by the amount of difference.
+      <td>This also adjusts the throttle blade based on how much time there has been a difference between the target RPM and current RPM - periodically multipled by the amount of difference.
       The proportional correction alone can reduce the difference between the target RPM and actual RPM, but it can't eliminate that difference. The integral correction can eliminate the difference.
       </td>
       <td>Integral overspeed correction is very mild. Zero at 0, 0.00098 at +20 RPM, ramping up to 0.00488 at +100 RPM, and still 0.00488 from +100 to +400 RPM. 
