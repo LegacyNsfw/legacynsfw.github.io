@@ -5,7 +5,8 @@
 <body>
   (I'm told that Katech's 103mm throttle bodies are made by Nick Williams, and they look the same so I assume it's true.)
 
-It takes a bit of extra effort to work make this throttle body work right in a C5.  I ran into two big issues with mine... it works, but just barely.
+<p>It takes a bit of extra effort to work make this throttle body work right in a C5.  I ran into two big issues with mine... it works, but just barely.
+  </p>
 
 <p>The really hard part was figuring out which tables needed help - probably because this is the first time I've tuned a car with an aftermarket throttle body. 
 But, once I understood the problem, the fix is just ordinary tuning, there's no rocket science. So, let me save you some trouble...
@@ -28,11 +29,11 @@ The blade needs to move quite a bit before the TB allows any airflow at all.
 </p>  
 
 <p>
-You'll notice that at 0.39% the blade position already has to be 11% - that's very different from the stock TB, which only had to rotate 4% to get the throttle body to start flowing air.
+You'll notice that for an opening area of 0.39% (the first nonzero cell) the blade position already has to be 11% - that's very different from the stock TB, which only had to rotate 4% to get the throttle body to start flowing air.
 </p>
 
 <p>
-  With the stock TB, when the PCM says "give me 1% throttle <b>opening area</b>" and the blade moves across 10% of its <b>travel</b>, and that's enough airflow to idle. But with the Katech, there is <i>zero</i> airflow until the blade moves to 11% of its travel.
+  With the stock TB, when the PCM says "give me 1% throttle <b>opening area</b>" and the blade moves across 10% of its <b>travel</b>, and that's enough airflow to idle. But with the Katech, there is <i>zero</i> airflow until the blade moves to 11% of its travel. You might be able to start the engine, but it will not stay running.
 </p>
   
 <p>
@@ -59,9 +60,12 @@ You'll notice that at 0.39% the blade position already has to be 11% - that's ve
 
 <p>The throttle <i>position</i> table is much lower resolution, and the first nonzero cell row is for 3.125% area. I'm not sure what this table is used for, but it seems like a good idea to keep it aligned with the other tables.
 
+<p><b>Example</b></p>
+  
 <p><a href="12587603-good-idle-soft-timing.bin">I have shared my .bin file</a> for anyone who wants a head start. It's not perfect, but it will save you some time. My car idles just fine.
 
 <p><i>Note that the ignition timing at high load is pretty soft in that tune. I'm still trying to figure out why the car won't take all of the timing that it should. Also, my setup is probably very different from yours (displacement, knock sensors, injectors, etc), so you probably don't want to use any other tables from this tune.</i>
 
 
 </body>
+
