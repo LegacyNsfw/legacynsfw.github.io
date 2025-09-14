@@ -1,21 +1,53 @@
 <head>
-<title>Katech 103mm throttle body in a C5</title>
+<title>Nick Williams & Katech 103mm throttle body in a C5</title>
 </head>
 
 <body>
-It takes a bit of extra effort to work make this throttle body work right in a C5. 
+  (I'm told that Katech's 103mm throttle bodies are made by Nick Williams, and they look the same so I assume it's true.)
 
-<p>The only hard part was figure out which tables needed help (probably because this is the first time I've tuned a car with an aftermarket throttle body). But, once I understood the problem, the fix is just ordinary tuning stuff. So, let me save you some trouble...
+It takes a bit of extra effort to work make this throttle body work right in a C5.  I ran into two big issues with mine... it works, but just barely.
 
-<p><b>The Problem</b>
+<p>The really hard part was figuring out which tables needed help - probably because this is the first time I've tuned a car with an aftermarket throttle body. 
+But, once I understood the problem, the fix is just ordinary tuning, there's no rocket science. So, let me save you some trouble...
 
-<p>Imagine that you're holding the throttle body in your hands and closing the throttle blade from halfway open to fully closed. After the opening is completely sealed by the throttle blade, the stock throttle body's blade can rotate another 4% before it hits the stop. With the Katech, the blade can rotate another 13% (maybe more - I'm not completely certain that 13% is the magic number). 
+<p><b>The Small Problem</b>
 
-<p>With the stock TB, when the PCM says "give me 1% throttle <b>opening area</b>" the blade moves across 10% of its <b>travel</b>. But with the Katech, the blade needs to move to about 18% travel to get that same 1% throttle opening area. 
+<P>The PCM goes into "reduced engine power" at full throttle.
+  That's fixed by setting the "max throttle position vs. RPM" table to 95% across the board.
+  I'm told that gold-blade GM throttle bodies need the same change, that's where I got the idea. It worked.
+</P>
 
-<p>Another way to look at it: The stock throttle body begins to allow some airflow after the blade moves about 4% away from the stop. But with the Katech, There will be ZERO airflow passing through the throttle body until the blade has moved about 13%. 
+<p><b>The Big Problem</b>
+<p>
+The blade needs to move quite a bit before the TB allows any airflow at all. 
+  There's a pair of tables (primary and redundant) that define the relationship between "opening area"
+  (what percentage of the throttle body area is open to allow airflow) and "% rotation" (how much the blade shaft needs to rotate)
+  and both of those needed to be updated. And both tables need to be identical, or the PCM will panic. 
+  
+  I'll put a screenshot of mine below. The values from 0 to 9.38 % area were updated, and everything after that is stock.
+</p>  
 
-<p><b>The Solution</b> (Almost...)
+<p>
+You'll notice that at 0.39% the blade position already has to be 11% - that's very different from the stock TB, which only had to rotate 4% to get the throttle body to start flowing air.
+</p>
+
+<p>
+  With the stock TB, when the PCM says "give me 1% throttle <b>opening area</b>" and the blade moves across 10% of its <b>travel</b>, and that's enough airflow to idle. But with the Katech, there is <i>zero</i> airflow until the blade moves to 11% of its travel.
+</p>
+  
+<p>
+  With the stock TB, when the PCM says "give me 2.5% throttle <b>opening area</b>" the blade moves to through 17% of its <b>travel</b>. But with the Katech, the blade needs to move to about 20% travel to get that same 2.5% opening area.   
+</p>
+  
+<p>I'll confess that I arrived that the values in my table through experimentation, but everything around idle tuning got much easier after I played with different throttle bodies on a test circuit that I made, and realized how weird the 103 is, and realized that these tables were designed to capture this relationship between opening area (how much air can flow) and blade position (how much the blade has moved).
+  </p>
+
+<P><b>Why That's A Big Problem</b>
+  
+<p>When your foot is off the pedal, the TAC will only allow the blade to move 18%. With my engine (LS 454, dry sump) the 103's blade position needs to be about 20-22% to get enough air to idle properly on a cold start. So it idles like shit for the first minute or two.
+</p>  
+
+<p><b>It gets a little more complex</b> (Just a little.)
 
 <p>The PCM has tables that define the relationship between throttle opening area (how much air can flow through the throttle) and throttle blade position.
 
@@ -23,12 +55,13 @@ It takes a bit of extra effort to work make this throttle body work right in a C
 
 <p>And yes, those names are confusingly similar but I'm pretty sure that's GM's fault.
 
-<p>The throttle <i>rotation</i> table defines the relationship at very high resolution, and at very low throttle angles, and it is critical for idle. There are two copies of this table and they must match exactly. Otherwise the PCM software will think there's something wrong with the PCM hardware, and your PCM may brick itself.
+<p>The throttle <i>rotation</i> table defines the relationship at very high resolution, and at very low throttle angles, and it is critical for idle. This is the table that I'm talking about above. There are two copies of this table and they must match exactly, otherwise the PCM software will think there's something wrong with the PCM hardware, and your PCM may brick itself.
 
-<p>The throttle <i>position</i> table is much lower resolution, and the first nonzero cell row is for 3.125% area. I'm not sure what this table is used for.
+<p>The throttle <i>position</i> table is much lower resolution, and the first nonzero cell row is for 3.125% area. I'm not sure what this table is used for, but it seems like a good idea to keep it aligned with the other tables.
 
-<p><a href="12587603.bin">I have shared my .bin file</a> for anyone who wants a head start. It's not perfect, but it will save you some time. My car idles just fine but it stumbles on transition to idle, and I'm still not sure whether that's due to throttle body tables or the usual scaler/airflow/cracker/follower/etc stuff. I still need to try 14% and 15% for the zero-opening-angle to see if those work better. 
+<p><a href="12587603-good-idle-soft-timing.bin">I have shared my .bin file</a> for anyone who wants a head start. It's not perfect, but it will save you some time. My car idles just fine.
 
-<p><i>Note that this tune was only intended to drive my car to the shop that will be tuning it. Also, my setup is probably very different from yours (displacement, knock sensors, injectors, etc), so you probably don't want to use any other tables from this tune.</i>
+<p><i>Note that the ignition timing at high load is pretty soft in that tune. I'm still trying to figure out why the car won't take all of the timing that it should. Also, my setup is probably very different from yours (displacement, knock sensors, injectors, etc), so you probably don't want to use any other tables from this tune.</i>
+
 
 </body>
