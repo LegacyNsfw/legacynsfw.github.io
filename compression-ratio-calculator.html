@@ -24,7 +24,7 @@
     }
 
     #results .result-label {
-      font-weight: 600;
+
     }
 
     #results .result-value {
@@ -115,6 +115,7 @@
     <button type="button" class="full-width" onclick="calcCR()">Calculate</button>
 </form>
 
+<p>
 <div id="results" class="result"></div>
 
 </div>
@@ -186,18 +187,22 @@ function calcCR() {
 
     const results = document.getElementById("results");
     results.innerHTML = `
-      <div class="result-row"><span class="result-label">All Cylinders</span><span class="result-value"></span></div>
+      <div class="result-row"><span class="result-label"><b>All Cylinders</b></span><span class="result-value"></span></div>
       <div class="result-row"><span class="result-label">Total Displacement:</span><span class="result-value">${totalDisplacementCc.toFixed(2)} cc</span></div>
       <div class="result-row"><span class="result-label">Total Displacement:</span><span class="result-value">${totalDisplacementCi.toFixed(2)} ci</span></div>
+      <div class="result-row"><span class="result-label">Piston Compression Height:</span><span class="result-value">${compHeight.toFixed(4)} in</span>
+      <div class="result-row"><span class="result-label">Compression Ratio:</span><span class="result-value">${cr.toFixed(2)}</span></div>
+
       <div class="result-row"><span class="result-label">&nbsp;</span><span class="result-value"></span></div>
-      <div class="result-row"><span class="result-label">Per Cylinder</span><span class="result-value"></span></div>
-      <div class="result-row"><span class="result-label">Swept Volume:</span><span class="result-value">${sweptVol.toFixed(2)} cc</span></div>
+
+      <div class="result-row"><span class="result-label"><b>Per Cylinder</b></span><span class="result-value"></span></div>
       <div class="result-row"><span class="result-label">Gasket Volume:</span><span class="result-value">${gasketVol.toFixed(2)} cc</span></div>
       <div class="result-row"><span class="result-label">Deck Volume:</span><span class="result-value">${deckVol.toFixed(2)} cc</span></div>
       <div class="result-row"><span class="result-label">Top Ring Volume:</span><span class="result-value">${topRingVol.toFixed(2)} cc</span></div>
       <div class="result-row"><span class="result-label">Combustion Volume:</span><span class="result-value">${combustionVol.toFixed(2)} cc</span></div>
-      <div class="result-row"><span class="result-label">Compression Ratio:</span><span class="result-value">${cr.toFixed(2)}</span></div>
-      <div class="result-row"><span class="result-label">Piston Compression Height:</span><span class="result-value">${compHeight.toFixed(4)} in</span></div>
+</div>
+      <div class="result-row"><span class="result-label">Swept Volume:</span><span class="result-value">${sweptVol.toFixed(2)} cc</span></div>
+
     `;
 }
 
