@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Compression Ratio Calculator</title>
+<style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; }
+    h2 { margin-bottom: 10px; }
+    form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; }
+    label { display: flex; flex-direction: column; font-size: 0.9rem; }
+    input { padding: 4px; font-size: 0.9rem; }
+    button { margin-top: 12px; padding: 6px 12px; font-size: 0.9rem; }
+    .full-width { grid-column: 1 / 3; }
+    .result { margin-top: 16px; padding: 10px; background: #f3f3f3; border: 1px solid #ddd; }
+</style>
+</head>
+<body>
+
+<h2>Compression Ratio Calculator</h2>
+
+<div style="padding-left: 40px; padding-right: 40px;">
+
+<form id="crForm" margin=5>
+    <label>Cylinders
+        <input name="cyl" type="number" value="8">
+    </label>
+
+    <label>Chamber Volume (cc)
+        <input name="chamber" type="number" step="0.1" value="69">
+    </label>
+
+    <label>Bore (inches)
+        <input name="bore" type="number" step="0.001" value="4.185">
+    </label>
+
+    <label>Stroke (inches)
+        <input name="stroke" type="number" step="0.001" value="4.125">
+    </label>
+
+    <label>Gasket Bore (inches)
+        <input name="gbore" type="number" step="0.001" value="4.200">
+    </label>
+
+    <label>Compressed Gasket Thickness (inches)
+        <input name="gthick" type="number" step="0.001" value="0.051">
+    </label>
+
+    <label>Piston Crown Diameter (inches)
+        <input name="topland" type="number" step="0.001" value="4.147">
+    </label>
+
+    <label>Piston Crown Height (inches)
+        <input name="ringdown" type="number" step="0.001" value="0.290">
+    </label>
+
+    <label>Rod Length (inches)
+        <input name="rod" type="number" step="0.001" value="6.125">
+    </label>
+
+    <label>Block Deck Height (inches)
+        <input name="deck" type="number" step="0.001" value="9.245">
+    </label>
+
+    <label>Dome (-) or Dish (+) Volume (cc)
+        <input name="dome" type="number" step="0.1" value="3">
+    </label>
+
+    <label>Piston to Deck (inches)
+        <input name="p2d" type="number" step="0.001" value="0.005">
+    </label>
+
+    <br>The dome/dish volume above will be <i>added</i> to the combustion chamber volume.
+    <button type="button" class="full-width" onclick="calcCR()">Calculate</button>
+</form>
+
+<div id="results" class="result"></div>
+
+</div>
+
+<script>
+function ccFromCylinder(diameter, height) {
+    const radius = diameter / 2;
+    const area = Math.PI * radius * radius;      // in²
+    const volumeIn3 = area * height;             // in³
+    return volumeIn3 * 16.387064;                // cc
+}
+
+function calcCR() {
+    const f = document.getElementById("crForm");
+
+    const bore     = parseFloat(f.bore.value)     || 0;
+    const stroke   = parseFloat(f.stroke.value)   || 0;
+    const gbore    = parseFloat(f.gbore.value)    || 0;
+    const gthick   = parseFloat(f.gthick.value)   || 0;
+    const deck     = parseFloat(f.deck.value)     || 0;
+    const rod      = parseFloat(f.rod.value)      || 0;
+    const ringdown = parseFloat(f.ringdown.value) || 0;
+    const topland  = parseFloat(f.topland.value)  || 0;
+    const chamber  = parseFloat(f.chamber.value)  || 0;
+    const dome     = parseFloat(f.dome.value)     || 0;
+    const p2d      = parseFloat(f.p2d.value)      || 0;
+
+    // Swept volume per cylinder
+    const sweptVol = ccFromCylinder(bore, stroke);
+
+    // Gasket volume
+    const gasketVol = ccFromCylinder(gbore, gthick);
+
+    // Deck clearance volume
+    const deckVol = ccFromCylinder(gbore, Math.max(p2d, 0));
+
+    // Top ring / crevice volume (annulus)
+    const topRingVol =
+        ccFromCylinder(bore, ringdown) -
+        ccFromCylinder(topland, ringdown);
+
+    // Clearance volume
+    const clearVol = chamber + gasketVol + deckVol + topRingVol + dome;
+
+    // Compression ratio
+    const cr = (sweptVol + clearVol) / clearVol;
+
+    // Compression height (internal)
+    const compHeight = deck - rod - (stroke / 2) - p2d;
+
+    const results = document.getElementById("results");
+    results.innerHTML =
+        "<strong>Computed Piston Compression Height:</strong> " + compHeight.toFixed(4) + " in<br>" + 
+        "<strong>Gasket Volume:</strong> " + gasketVol.toFixed(2) + " cc<br>" +
+        "<strong>Deck Volume:</strong> " + deckVol.toFixed(2) + " cc<br>" +
+        "<strong>Top Ring Volume:</strong> " + topRingVol.toFixed(2) + " cc<br>" +
+        "<strong>Combustion Volume:</strong> " + clearVol.toFixed(2) + " cc (chamber, gasket, deck, crown-to-wall)<br>" +
+        "<strong>Swept Volume (per cylinder):</strong> " + sweptVol.toFixed(2) + " cc<br>" +
+        "<strong>Compression Ratio:</strong> " + cr.toFixed(2) + "<br>";
+}
+</script>
+
+</body>
+</html>
