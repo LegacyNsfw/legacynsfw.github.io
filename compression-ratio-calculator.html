@@ -148,6 +148,8 @@ function loadPreset(preset) {
     f.topland.value  = x.topland;
     f.ringdown.value = x.ringdown;
     f.p2d.value      = x.p2d;
+
+    calcCR();
 }
 
 function calcCR() {
@@ -197,6 +199,11 @@ function calcCR() {
       <div class="result-row"><span class="result-label">Piston Compression Height:</span><span class="result-value">${compHeight.toFixed(4)} in</span></div>
     `;
 }
+
+document.addEventListener("DOMContentLoaded", calcCR);
+
+document.getElementById("crForm").addEventListener("input", calcCR);
+
 </script>
 
 </body>
