@@ -11,7 +11,26 @@
     input { padding: 4px; font-size: 0.9rem; }
     button { margin-top: 12px; padding: 6px 12px; font-size: 0.9rem; }
     .full-width { grid-column: 1 / 3; }
-    .result { margin-top: 16px; padding: 10px; background: #f3f3f3; border: 1px solid #ddd; }
+
+#results {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  column-gap: 24px;   /* adjust spacing to taste */
+  row-gap: 4px;
+}
+
+#results .result-row {
+  display: contents;   /* lets the grid handle layout */
+}
+
+#results .result-label {
+  font-weight: 600;
+}
+
+#results .result-value {
+  text-align: right;
+}
+    
 </style>
 </head>
 <body>
@@ -115,23 +134,81 @@ function calcCR() {
         ccFromCylinder(topland, ringdown);
 
     // Clearance volume
-    const clearVol = chamber + gasketVol + deckVol + topRingVol + dome;
+    const combustionVol = chamber + gasketVol + deckVol + topRingVol + dome;
 
     // Compression ratio
-    const cr = (sweptVol + clearVol) / clearVol;
+    const cr = (sweptVol + combustionVol) / combustionVol;
 
     // Compression height (internal)
     const compHeight = deck - rod - (stroke / 2) - p2d;
 
+    const totalDisplacementCc = sweptVol * (parseFloat(f.cyl.value) || 0);
+    const totalDisplacementCi = totalDisplacementCc / 16.387064;
+
     const results = document.getElementById("results");
-    results.innerHTML =
-        "<strong>Computed Piston Compression Height:</strong> " + compHeight.toFixed(4) + " in<br>" + 
-        "<strong>Gasket Volume:</strong> " + gasketVol.toFixed(2) + " cc<br>" +
-        "<strong>Deck Volume:</strong> " + deckVol.toFixed(2) + " cc<br>" +
-        "<strong>Top Ring Volume:</strong> " + topRingVol.toFixed(2) + " cc<br>" +
-        "<strong>Combustion Volume:</strong> " + clearVol.toFixed(2) + " cc (chamber, gasket, deck, crown-to-wall)<br>" +
-        "<strong>Swept Volume (per cylinder):</strong> " + sweptVol.toFixed(2) + " cc<br>" +
-        "<strong>Compression Ratio:</strong> " + cr.toFixed(2) + "<br>";
+results.innerHTML = `
+
+  <div class="result-row">
+    <span class="result-label">All Cylinders</span>
+    <span class="result-value"></span>
+  </div>
+
+  <div class="result-row">
+    <span class="result-label">Total Displacement:</span>
+    <span class="result-value">${totalDisplacementCc.toFixed(2)} cc</span>
+  </div>
+
+  <div class="result-row">
+    <span class="result-label">Total Displacement:</span>
+    <span class="result-value">${totalDisplacementCi.toFixed(2)} ci</span>
+  </div>
+
+  <div class="result-row">
+    <span class="result-label">&nbsp;</span>
+    <span class="result-value"></span>
+  </div>
+
+
+  <div class="result-row">
+    <span class="result-label">Per Cylinder</span>
+    <span class="result-value"></span>
+  </div>
+
+  <div class="result-row">
+    <span class="result-label">Swept Volume:</span>
+    <span class="result-value">${sweptVol.toFixed(2)} cc</span>
+  </div>
+
+  <div class="result-row">
+    <span class="result-label">Gasket Volume:</span>
+    <span class="result-value">${gasketVol.toFixed(2)} cc</span>
+  </div>
+
+  <div class="result-row">
+    <span class="result-label">Deck Volume:</span>
+    <span class="result-value">${deckVol.toFixed(2)} cc</span>
+  </div>
+
+  <div class="result-row">
+    <span class="result-label">Top Ring Volume:</span>
+    <span class="result-value">${topRingVol.toFixed(2)} cc</span>
+  </div>
+
+  <div class="result-row">
+    <span class="result-label">Combustion Volume:</span>
+    <span class="result-value">${combustionVol.toFixed(2)} cc</span>
+  </div>
+
+  <div class="result-row">
+    <span class="result-label">Compression Ratio:</span>
+    <span class="result-value">${cr.toFixed(2)}</span>
+  </div>
+
+  <div class="result-row">
+    <span class="result-label">Piston Compression Height:</span>
+    <span class="result-value">${compHeight.toFixed(4)} in</span>
+  </div>
+`;
 }
 </script>
 
