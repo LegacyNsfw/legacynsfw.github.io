@@ -12,25 +12,34 @@
     button { margin-top: 12px; padding: 6px 12px; font-size: 0.9rem; }
     .full-width { grid-column: 1 / 3; }
 
-#results {
-  display: inline-grid;
-  grid-template-columns: auto auto;
-  column-gap: 24px;   /* adjust spacing to taste */
-  row-gap: 4px;
-}
+    #results {
+      display: inline-grid;
+      grid-template-columns: auto auto;
+      column-gap: 24px;
+      row-gap: 4px;
+    }
 
-#results .result-row {
-  display: contents;   /* lets the grid handle layout */
-}
+    #results .result-row {
+      display: contents;
+    }
 
-#results .result-label {
-  font-weight: 600;
-}
+    #results .result-label {
+      font-weight: 600;
+    }
 
-#results .result-value {
-  text-align: right;
-}
-    
+    #results .result-value {
+      text-align: right;
+    }
+
+    #presets {
+      margin-bottom: 20px;
+    }
+
+    #presets button {
+      margin-right: 10px;
+      padding: 6px 12px;
+      font-size: 0.9rem;
+    }
 </style>
 </head>
 <body>
@@ -38,6 +47,19 @@
 <h2>Compression Ratio Calculator</h2>
 
 <div style="padding-left: 40px; padding-right: 40px;">
+
+<!-- LS PRESET BUTTONS -->
+<div id="presets">
+  <button onclick="loadPreset('LS1')">LS1</button>
+  <button onclick="loadPreset('LS3')">LS3</button>
+  <button onclick="loadPreset('LS7')">LS7</button>
+  <button onclick="loadPreset('LSX454')">My 454</button>
+<p>(I'm not certain that the LSx presets are correct. <br> Please open a pull request if you find errors.)
+
+</div>
+
+
+<p>
 
 <form id="crForm" margin=5>
     <label>Cylinders
@@ -99,9 +121,33 @@
 <script>
 function ccFromCylinder(diameter, height) {
     const radius = diameter / 2;
-    const area = Math.PI * radius * radius;      // in²
-    const volumeIn3 = area * height;             // in³
-    return volumeIn3 * 16.387064;                // cc
+    const area = Math.PI * radius * radius;
+    const volumeIn3 = area * height;
+    return volumeIn3 * 16.387064;
+}
+
+function loadPreset(preset) {
+    const presets = {
+        LS1:  { bore: 3.898, stroke: 3.622, rod: 6.098, deck: 9.240, gbore: 3.910, gthick: 0.051, chamber: 67, dome: 0, topland: 3.870, ringdown: 0.280, p2d: 0.005 },
+        LS3:  { bore: 4.065, stroke: 3.622, rod: 6.098, deck: 9.240, gbore: 4.100, gthick: 0.051, chamber: 68, dome: 0, topland: 4.035, ringdown: 0.280, p2d: 0.005 },
+        LS7:  { bore: 4.125, stroke: 4.000, rod: 6.067, deck: 9.240, gbore: 4.150, gthick: 0.051, chamber: 70, dome: 0, topland: 4.095, ringdown: 0.280, p2d: 0.005 },
+        LSX454:{ bore: 4.185, stroke: 4.125, rod: 6.125, deck: 9.245, gbore: 4.200, gthick: 0.051, chamber: 69, dome: 3, topland: 4.147, ringdown: 0.290, p2d: 0.005 }
+    };
+
+    const x = presets[preset];
+    const f = document.getElementById("crForm");
+
+    f.bore.value     = x.bore;
+    f.stroke.value   = x.stroke;
+    f.rod.value      = x.rod;
+    f.deck.value     = x.deck;
+    f.gbore.value    = x.gbore;
+    f.gthick.value   = x.gthick;
+    f.chamber.value  = x.chamber;
+    f.dome.value     = x.dome;
+    f.topland.value  = x.topland;
+    f.ringdown.value = x.ringdown;
+    f.p2d.value      = x.p2d;
 }
 
 function calcCR() {
@@ -119,96 +165,37 @@ function calcCR() {
     const dome     = parseFloat(f.dome.value)     || 0;
     const p2d      = parseFloat(f.p2d.value)      || 0;
 
-    // Swept volume per cylinder
     const sweptVol = ccFromCylinder(bore, stroke);
-
-    // Gasket volume
     const gasketVol = ccFromCylinder(gbore, gthick);
-
-    // Deck clearance volume
     const deckVol = ccFromCylinder(gbore, Math.max(p2d, 0));
 
-    // Top ring / crevice volume (annulus)
     const topRingVol =
         ccFromCylinder(bore, ringdown) -
         ccFromCylinder(topland, ringdown);
 
-    // Clearance volume
     const combustionVol = chamber + gasketVol + deckVol + topRingVol + dome;
-
-    // Compression ratio
     const cr = (sweptVol + combustionVol) / combustionVol;
 
-    // Compression height (internal)
     const compHeight = deck - rod - (stroke / 2) - p2d;
 
     const totalDisplacementCc = sweptVol * (parseFloat(f.cyl.value) || 0);
     const totalDisplacementCi = totalDisplacementCc / 16.387064;
 
     const results = document.getElementById("results");
-results.innerHTML = `
-
-  <div class="result-row">
-    <span class="result-label">All Cylinders</span>
-    <span class="result-value"></span>
-  </div>
-
-  <div class="result-row">
-    <span class="result-label">Total Displacement:</span>
-    <span class="result-value">${totalDisplacementCc.toFixed(2)} cc</span>
-  </div>
-
-  <div class="result-row">
-    <span class="result-label">Total Displacement:</span>
-    <span class="result-value">${totalDisplacementCi.toFixed(2)} ci</span>
-  </div>
-
-  <div class="result-row">
-    <span class="result-label">&nbsp;</span>
-    <span class="result-value"></span>
-  </div>
-
-
-  <div class="result-row">
-    <span class="result-label">Per Cylinder</span>
-    <span class="result-value"></span>
-  </div>
-
-  <div class="result-row">
-    <span class="result-label">Swept Volume:</span>
-    <span class="result-value">${sweptVol.toFixed(2)} cc</span>
-  </div>
-
-  <div class="result-row">
-    <span class="result-label">Gasket Volume:</span>
-    <span class="result-value">${gasketVol.toFixed(2)} cc</span>
-  </div>
-
-  <div class="result-row">
-    <span class="result-label">Deck Volume:</span>
-    <span class="result-value">${deckVol.toFixed(2)} cc</span>
-  </div>
-
-  <div class="result-row">
-    <span class="result-label">Top Ring Volume:</span>
-    <span class="result-value">${topRingVol.toFixed(2)} cc</span>
-  </div>
-
-  <div class="result-row">
-    <span class="result-label">Combustion Volume:</span>
-    <span class="result-value">${combustionVol.toFixed(2)} cc</span>
-  </div>
-
-  <div class="result-row">
-    <span class="result-label">Compression Ratio:</span>
-    <span class="result-value">${cr.toFixed(2)}</span>
-  </div>
-
-  <div class="result-row">
-    <span class="result-label">Piston Compression Height:</span>
-    <span class="result-value">${compHeight.toFixed(4)} in</span>
-  </div>
-`;
+    results.innerHTML = `
+      <div class="result-row"><span class="result-label">All Cylinders</span><span class="result-value"></span></div>
+      <div class="result-row"><span class="result-label">Total Displacement:</span><span class="result-value">${totalDisplacementCc.toFixed(2)} cc</span></div>
+      <div class="result-row"><span class="result-label">Total Displacement:</span><span class="result-value">${totalDisplacementCi.toFixed(2)} ci</span></div>
+      <div class="result-row"><span class="result-label">&nbsp;</span><span class="result-value"></span></div>
+      <div class="result-row"><span class="result-label">Per Cylinder</span><span class="result-value"></span></div>
+      <div class="result-row"><span class="result-label">Swept Volume:</span><span class="result-value">${sweptVol.toFixed(2)} cc</span></div>
+      <div class="result-row"><span class="result-label">Gasket Volume:</span><span class="result-value">${gasketVol.toFixed(2)} cc</span></div>
+      <div class="result-row"><span class="result-label">Deck Volume:</span><span class="result-value">${deckVol.toFixed(2)} cc</span></div>
+      <div class="result-row"><span class="result-label">Top Ring Volume:</span><span class="result-value">${topRingVol.toFixed(2)} cc</span></div>
+      <div class="result-row"><span class="result-label">Combustion Volume:</span><span class="result-value">${combustionVol.toFixed(2)} cc</span></div>
+      <div class="result-row"><span class="result-label">Compression Ratio:</span><span class="result-value">${cr.toFixed(2)}</span></div>
+      <div class="result-row"><span class="result-label">Piston Compression Height:</span><span class="result-value">${compHeight.toFixed(4)} in</span></div>
+    `;
 }
 </script>
 
