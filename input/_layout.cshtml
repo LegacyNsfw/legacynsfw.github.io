@@ -90,6 +90,14 @@
       {
         <div id="content" class="col-md-12">
           @RenderBody()
+          @if (Document.Destination.FullPath == "index.html")
+          {
+            <div class="text-center">
+              <div class="d-inline-block text-start">
+                @Html.Partial("_links")
+              </div>
+            </div>
+          }
           @if (isPost)
           {
             @Html.Partial("_post-after-content")
