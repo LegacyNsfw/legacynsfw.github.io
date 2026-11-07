@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Statiq.Web" Version="1.0.0-beta.60" />
+  </ItemGroup>
+
+  <!-- Copy theme overlay into theme before building -->
+  <ItemGroup>
+    <OverlayFiles Include="theme-overlay\**\*" Condition="Exists('theme-overlay')" />
+  </ItemGroup>
+
+  <Target Name="CopyThemeOverlay" BeforeTargets="Build" Condition="@(OverlayFiles) != ''">
+    <MakeDir Directories="@(OverlayFiles->'theme\%(RecursiveDir)')" />
+    <Copy
+      SourceFiles="@(OverlayFiles)"
+      DestinationFiles="@(OverlayFiles->'theme\%(RecursiveDir)%(Filename)%(Extension)')"
+      SkipUnchangedFiles="false"
+      OverwriteReadOnlyFiles="true" />
+  </Target>
+
+</Project>
