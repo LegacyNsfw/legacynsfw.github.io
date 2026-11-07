@@ -76,10 +76,14 @@
   <!-- Main Content -->
   <div class="container">
     <div class="row">
-      @if (isPage)
+      @if (Document.Destination.FullPath != "index.html")
       {
         <div id="content" class="col-md-9">
           @RenderBody()
+          @if (isPost)
+          {
+            @Html.Partial("_post-after-content")
+          }
           @Html.Partial("_common-after-content")
         </div>
         <div class="col-md-3">
@@ -90,14 +94,11 @@
       {
         <div id="content" class="col-md-12">
           @RenderBody()
-          @if (Document.Destination.FullPath == "index.html")
-          {
-            <div class="text-center">
-              <div class="d-inline-block text-start">
-                @Html.Partial("_links")
-              </div>
+          <div class="text-center">
+            <div class="d-inline-block text-start">
+              @Html.Partial("_links")
             </div>
-          }
+          </div>
           @if (isPost)
           {
             @Html.Partial("_post-after-content")
