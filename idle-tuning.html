@@ -20,7 +20,7 @@
   <p>Getting the engine to <i>idle</i> was pretty easy. Getting it to <i>return to idle</i>, for example after approaching a stoplight and pressing the clutch pedal, was hard. 
     Often, the engine speed would just drop from cruising RPM all the way down to zero. With the setup below, that problem is gone.</p>
 
-  <p>There are a lot of differnet features in the PCM software that interact to shape this behavior.</p>
+  <p>There are a lot of different features in the PCM software that interact to shape this behavior.</p>
 
   <table border=1 cellpadding=10>
     <tr>
@@ -31,7 +31,7 @@
     
     <tr>
       <td>Adaptive Idle</td>
-      <td>This feature adjusts the throttle blade angle (or Idle Air Control valve, for cable-throttle vehicles) based on engine speed. More precisely, based on difference between the actual engine speed and the desired idle speed.</td>
+      <td>This feature adjusts the throttle blade angle or Idle Air Control valve based on engine speed. More precisely, it makes those adjustments based on difference between the actual engine speed and the desired idle speed.</td>
       <td>I'll come back to this later. I'm just mentioning this here to clarify what it does and why it's useful.</td>
     </tr>
     
@@ -63,7 +63,8 @@
       <td>Adaptive Idle Early-Entry, or Hysteresis</td>
       <td>If this is set to zero, adaptive idle will only engage when the engine speed drops to the target idle speed. 
         If this is set to 500, adaptive idle will engage when the engine speed is 500 RPM above the target idle speed. 
-        This is useful, because one of the adaptive idle features slows the rate at which RPM falls. </td>
+        This is useful, because one of the adaptive idle features slows the rate at which RPM falls. 
+        <br>I don't know whether HP Tuners allows you to edit this. </td>
       <td>I set this to 1000.</td>
     </tr>
 
@@ -100,15 +101,15 @@
       <br>From +80 RPM to +400 RPM, the correction gradually increases to +0.25
       <br>At -80 RPM, the table adds 0.5 grams per second.
       <br>From -100 RPM to -400 RPM, the table adds a flat 10 grams per second. That's a lot. It's roughly equivalent to stabbing the accelerator when you think the engine is about to die. 
-        I intend to try smaller corrections at -100 and -150, because this will overshoot the target intermittently.
-        But, generally speaking, if RPM falls to 100 below target, something is wrong, and this ensures that the engine doesn't sputter and die.
+        <br>Think of the extra -100 to -400 RPM airflow settings as a safety-net, not something that really gets used often.
+        Generally speaking, if RPM falls to 100 below target, something is wrong, and this ensures that the engine doesn't sputter and die.
       </td>
     </tr>
 
     <tr>
       <td>Adaptive Idle Airflow - Integral</td>
-      <td>This also adjusts the throttle blade based on how much time there has been a difference between the target RPM and current RPM - periodically multipled by the amount of difference.
-      The proportional correction alone can reduce the difference between the target RPM and actual RPM, but it can't eliminate that difference. The integral correction can eliminate the difference.
+      <td>This also adjusts the throttle blade based on how much <i>time</i> has passed with a difference between the target RPM and current RPM. The extra airflow amount periodically increases based on the amount of difference.
+      The proportional correction alone can reduce the difference between the target RPM and actual RPM, but it can't <i>eliminate</i> that difference. The integral correction can make the actual RPM exactly match the desired RPM.
       </td>
       <td>Integral overspeed correction is very mild. Zero at 0, 0.00098 at +20 RPM, ramping up to 0.00488 at +100 RPM, and still 0.00488 from +100 to +400 RPM. 
         <br>Integral underspeed correction is zero at 0, 0.00098 at -20, ramping up to 0.00391 at -80. Then it jumps to 0.08 at -100, 0.15 at -150, ramping up to 0.44 at -400.
@@ -147,10 +148,10 @@
 
 <p>
   * Katech's 103mm throttle body for the C5 is horribly calibrated. And I have a hunch that's why their website no longer lists them for sale for C5s. 
-  The problem with their calibration is that the TAC model imposes an 18% limit on the throttle position at idle, and since the damn thing doesn't
+  The problem with their calibration is that the TAC module imposes an 18% limit on the throttle position at idle, and since the damn thing doesn't
   even start flowing air until 10%, 18% is barely enough air for the engine to idle at a cold start. It's tolerable in the summer, just barely, but intolerable in the winter when the oil is thicker.
   The PCM calls for about 22% throttle position, the TAC says nope, 18% is all you get. And you cannot tune the TAC. We're just stuck with that 18% limit.
-  With the 5.7L / 346ci engines that come in the C5, it'll work. With a dry-sumped 454, on a cold winter day, forget about it. Keep an LS2 TB handy for the winter months.
+  With the 5.7L / 346ci engines that come in the C5, it'll work. With a dry-sumped 454, on a cold winter day, not so much.
   
 </p>
 </body>
